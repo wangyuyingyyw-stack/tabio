@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>欢迎使用 Tabio</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 50px;
+      max-width: 680px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      font-size: 32px;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .header p {
+      color: #666;
+      font-size: 16px;
+    }
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+    .feature {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .feature:nth-child(1) .feature-icon { background: #e8f4fd; }
+    .feature:nth-child(2) .feature-icon { background: #fef3e2; }
+    .feature:nth-child(3) .feature-icon { background: #e8f8e8; }
+    .feature-content h3 {
+      font-size: 16px;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+    .feature-content p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+    .tip-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 30px;
+      color: white;
+    }
+    .tip-box h3 {
+      font-size: 15px;
+      margin-bottom: 10px;
+      opacity: 0.9;
+    }
+    .tip-box .shortcut {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .tip-box .key {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: monospace;
+    }
+    .tip-box .arrow {
+      font-size: 18px;
+      opacity: 0.7;
+    }
+    .tip-box .desc {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    .footer {
+      text-align: center;
+    }
+    .footer p {
+      font-size: 13px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✨ 欢迎使用 Tabio</h1>
+      <p>你的智能标签页管理助手，已经开始工作了</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-content">
+          <h3>自动去重</h3>
+          <p>当你打开一个已经存在的页面时，Tabio 会自动关闭旧的重复标签，保留你新打开的页面。不用再手动找和关了。</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⏰</div>
+        <div class="feature-content">
+          <h3>自动清理不活跃标签</h3>
+          <p>超过 30 分钟没有访问的标签会被自动关闭（可在设置中调整）。固定标签和播放音频的标签不受影响，关闭的标签可在历史中恢复。</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-content">
+          <h3>地址栏快速搜索</h3>
+          <p>打开了很多标签找不到？不用一个个翻，直接用地址栏搜索所有窗口的标签，一秒跳转。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <h3>💡 试试地址栏搜索（最实用的功能）</h3>
+      <div class="shortcut">
+        <span class="key">go</span>
+        <span class="arrow">→</span>
+        <span class="key">Tab</span>
+        <span class="arrow">→</span>
+        <span class="key">输入关键词</span>
+      </div>
+      <p class="desc">在地址栏输入 go，按 Tab 键激活搜索模式，然后输入你记得的页面标题或网址的任意部分，从下拉结果中选择即可直接跳转，跨窗口也能找到。</p>
+    </div>
+
+    <div class="footer">
+      <p>点击工具栏上的 Tabio 图标可以查看概览、搜索标签、恢复历史和调整设置</p>
+    </div>
+  </div>
+</body>
+</html>

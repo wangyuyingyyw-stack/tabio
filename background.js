@@ -1,4 +1,4 @@
-// TabSweep - Background Service Worker
+// Tabio - Background Service Worker
 // 核心功能：重复标签检测、不活跃标签清理、历史记录
 
 // ============ 默认配置 ============
@@ -27,14 +27,21 @@ let settings = { ...DEFAULT_SETTINGS };
 let closedHistory = [];  // [{ url, title, closedAt, reason }]
 
 // ============ 初始化 ============
-chrome.runtime.onInstalled.addListener(async () => {
-  const stored = await chrome.storage.local.get(['settings', 'closedHistory']);
+chrome.runtime.onInstalled.addListener(async (details) => {
+  const stored = await chrome.storage.local.get(['settings', 'closedHistory', 'dedupeNotifyCount']);
   if (stored.settings) {
     settings = { ...DEFAULT_SETTINGS, ...stored.settings };
   } else {
     await chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
   }
   closedHistory = stored.closedHistory || [];
+  
+  // 首次安装时打开欢迎引导页
+  if (details.reason === 'install') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+    // 初始化通知计数器
+    await chrome.storage.local.set({ dedupeNotifyCount: 0 });
+  }
   
   // 初始化所有已打开标签的访问时间
   const tabs = await chrome.tabs.query({});
@@ -189,6 +196,9 @@ async function checkAndCloseDuplicate(newTab) {
         await addToHistory(existingTab, 'duplicate');
         await chrome.tabs.update(newTab.id, { active: true });
         await chrome.tabs.remove(existingTab.id);
+        
+        // 前 5 次去重时给用户通知提示
+        await showDedupeNotification(newTab.title || newTab.url);
       } catch (e) {
         console.log('Tab already closed:', e.message);
       }
@@ -288,6 +298,35 @@ async function addToHistory(tab, reason) {
   }
   
   await chrome.storage.local.set({ closedHistory });
+}
+
+// ============ 新手引导通知 ============
+async function showDedupeNotification(tabTitle) {
+  const stored = await chrome.storage.local.get(['dedupeNotifyCount']);
+  const count = stored.dedupeNotifyCount || 0;
+  
+  // 只在前 5 次提示
+  if (count >= 5) return;
+  
+  await chrome.storage.local.set({ dedupeNotifyCount: count + 1 });
+  
+  const tips = [
+    '💡 在地址栏输入 go + Tab 可快速搜索所有已打开的标签页',
+    '💡 试试在地址栏输入 go + Tab，跨窗口搜索标签',
+    '💡 Tabio 还会自动清理长时间没看的标签页哦',
+    '💡 点击工具栏 Tabio 图标可查看历史和调整设置',
+    '💡 引导结束，Tabio 将继续静默为你工作 🎉',
+  ];
+  
+  const shortTitle = tabTitle.length > 30 ? tabTitle.slice(0, 30) + '...' : tabTitle;
+  
+  chrome.notifications.create(`dedupe-tip-${count}`, {
+    type: 'basic',
+    iconUrl: 'icons/icon128.png',
+    title: `Tabio: 已关闭旧的重复页面`,
+    message: `「${shortTitle}」已存在，旧标签已关闭。\n${tips[count]}`,
+    priority: 1,
+  });
 }
 
 // ============ Badge 显示 ============
