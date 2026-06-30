@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TabSweep</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 顶部标题栏 -->
+    <header class="header">
+      <h1 class="logo">✨ Tabio</h1>
+      <nav class="nav-tabs">
+        <button class="nav-btn active" data-panel="dashboard">概览</button>
+        <button class="nav-btn" data-panel="search">搜索</button>
+        <button class="nav-btn" data-panel="history">历史</button>
+        <button class="nav-btn" data-panel="settings">设置</button>
+      </nav>
+    </header>
+
+    <!-- 概览面板 -->
+    <section id="panel-dashboard" class="panel active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number" id="stat-total">-</span>
+          <span class="stat-label">打开标签</span>
+        </div>
+        <div class="stat-card warn">
+          <span class="stat-number" id="stat-duplicates">-</span>
+          <span class="stat-label">重复标签</span>
+        </div>
+        <div class="stat-card danger">
+          <span class="stat-number" id="stat-inactive">-</span>
+          <span class="stat-label">即将超时</span>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="btn-close-duplicates">
+          🔄 一键去重
+        </button>
+        <button class="btn btn-warning" id="btn-close-inactive">
+          ⏰ 清理超时
+        </button>
+      </div>
+      
+      <div class="action-result" id="action-result" style="display:none;"></div>
+    </section>
+
+    <!-- 搜索面板 -->
+    <section id="panel-search" class="panel">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="搜索标签页标题或 URL..." autofocus>
+      </div>
+      <div class="tab-list" id="tab-list">
+        <div class="empty-state">输入关键词搜索所有打开的标签页</div>
+      </div>
+    </section>
+
+    <!-- 历史面板 -->
+    <section id="panel-history" class="panel">
+      <div class="history-header">
+        <span class="history-title">已关闭的标签页</span>
+        <button class="btn btn-small btn-ghost" id="btn-clear-history">清空</button>
+      </div>
+      <div class="tab-list" id="history-list">
+        <div class="empty-state">暂无记录</div>
+      </div>
+    </section>
+
+    <!-- 设置面板 -->
+    <section id="panel-settings" class="panel">
+      <div class="settings-group">
+        <h3 class="settings-title">重复标签</h3>
+        <label class="setting-item">
+          <span>自动关闭重复标签页</span>
+          <input type="checkbox" id="setting-autoDedupe" class="toggle">
+        </label>
+        <label class="setting-item">
+          <span>检测范围</span>
+          <select id="setting-dedupeScope" class="select">
+            <option value="all">所有窗口</option>
+            <option value="window">当前窗口</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-title">不活跃清理</h3>
+        <label class="setting-item">
+          <span>自动关闭不活跃标签</span>
+          <input type="checkbox" id="setting-autoCloseInactive" class="toggle">
+        </label>
+        <label class="setting-item">
+          <span>超时时间（分钟）</span>
+          <input type="number" id="setting-inactiveTimeout" class="input-number" min="5" max="1440" step="5">
+        </label>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-title">保护规则</h3>
+        <label class="setting-item">
+          <span>保护固定标签页</span>
+          <input type="checkbox" id="setting-protectPinned" class="toggle">
+        </label>
+        <label class="setting-item">
+          <span>保护播放音频的标签</span>
+          <input type="checkbox" id="setting-protectAudible" class="toggle">
+        </label>
+        <label class="setting-item">
+          <span>保护分组标签页</span>
+          <input type="checkbox" id="setting-protectGrouped" class="toggle">
+        </label>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-title">白名单</h3>
+        <p class="settings-desc">这些网站不会被自动关闭，每行一个（支持 * 通配符）</p>
+        <textarea id="setting-whitelist" class="textarea" rows="4" placeholder="例如：&#10;*.google.com*&#10;*github.com*"></textarea>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="btn-save-settings">保存设置</button>
+    </section>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
