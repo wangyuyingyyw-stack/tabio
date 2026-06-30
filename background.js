@@ -26,9 +26,19 @@ let tabLastAccess = {};  // { tabId: timestamp }
 let settings = { ...DEFAULT_SETTINGS };
 let closedHistory = [];  // [{ url, title, closedAt, reason }]
 
+// Service Worker 每次唤醒时立即从 storage 恢复状态
+chrome.storage.local.get(['settings', 'closedHistory']).then(stored => {
+  if (stored.settings) {
+    settings = { ...DEFAULT_SETTINGS, ...stored.settings };
+  }
+  if (stored.closedHistory) {
+    closedHistory = stored.closedHistory;
+  }
+});
+
 // ============ 初始化 ============
 chrome.runtime.onInstalled.addListener(async (details) => {
-  const stored = await chrome.storage.local.get(['settings', 'closedHistory', 'dedupeNotifyCount']);
+  const stored = await chrome.storage.local.get(['settings', 'closedHistory']);
   if (stored.settings) {
     settings = { ...DEFAULT_SETTINGS, ...stored.settings };
   } else {
@@ -39,8 +49,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   // 首次安装时打开欢迎引导页
   if (details.reason === 'install') {
     chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
-    // 初始化通知计数器
-    await chrome.storage.local.set({ dedupeNotifyCount: 0 });
   }
   
   // 初始化所有已打开标签的访问时间
@@ -300,33 +308,106 @@ async function addToHistory(tab, reason) {
   await chrome.storage.local.set({ closedHistory });
 }
 
-// ============ 新手引导通知 ============
+// ============ 去重提示（页内 Toast） ============
 async function showDedupeNotification(tabTitle) {
-  const stored = await chrome.storage.local.get(['dedupeNotifyCount']);
-  const count = stored.dedupeNotifyCount || 0;
+  const toastTitle = 'Tabio: 已关闭旧的重复页面';
+  const toastBody = '';
   
-  // 只在前 5 次提示
-  if (count >= 5) return;
-  
-  await chrome.storage.local.set({ dedupeNotifyCount: count + 1 });
-  
-  const tips = [
-    '💡 在地址栏输入 go + Tab 可快速搜索所有已打开的标签页',
-    '💡 试试在地址栏输入 go + Tab，跨窗口搜索标签',
-    '💡 Tabio 还会自动清理长时间没看的标签页哦',
-    '💡 点击工具栏 Tabio 图标可查看历史和调整设置',
-    '💡 引导结束，Tabio 将继续静默为你工作 🎉',
-  ];
-  
-  const shortTitle = tabTitle.length > 30 ? tabTitle.slice(0, 30) + '...' : tabTitle;
-  
-  chrome.notifications.create(`dedupe-tip-${count}`, {
-    type: 'basic',
-    iconUrl: 'icons/icon128.png',
-    title: `Tabio: 已关闭旧的重复页面`,
-    message: `「${shortTitle}」已存在，旧标签已关闭。\n${tips[count]}`,
-    priority: 1,
+  // 向当前活跃标签注入 toast
+  try {
+    const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    if (!activeTab || !activeTab.id || activeTab.url.startsWith('chrome://') || activeTab.url.startsWith('chrome-extension://')) {
+      return;
+    }
+    
+    // 先尝试通过 sendMessage（content script 已就绪时最快）
+    try {
+      await chrome.tabs.sendMessage(activeTab.id, {
+        action: 'showToast',
+        title: toastTitle,
+        body: toastBody,
+      });
+    } catch (msgErr) {
+      // content script 未就绪，使用 scripting API 动态注入
+      await chrome.scripting.executeScript({
+        target: { tabId: activeTab.id },
+        func: injectToast,
+        args: [toastTitle, toastBody],
+      });
+    }
+  } catch (e) {
+    console.log('Toast failed:', e.message);
+  }
+}
+
+// 动态注入的 toast 函数（不依赖 content script）
+function injectToast(title, body) {
+  // 创建容器
+  let container = document.getElementById('tabio-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'tabio-toast-container';
+    Object.assign(container.style, {
+      position: 'fixed',
+      top: '16px',
+      right: '16px',
+      zIndex: '2147483647',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      pointerEvents: 'none',
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    });
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  Object.assign(toast.style, {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white',
+    padding: '12px 16px',
+    borderRadius: '10px',
+    boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+    maxWidth: '320px',
+    pointerEvents: 'auto',
+    cursor: 'pointer',
+    opacity: '0',
+    transform: 'translateX(100%)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   });
+
+  const titleEl = document.createElement('div');
+  Object.assign(titleEl.style, { fontSize: '13px', fontWeight: '600' });
+  titleEl.textContent = title;
+  toast.appendChild(titleEl);
+
+  if (body) {
+    const bodyEl = document.createElement('div');
+    Object.assign(bodyEl.style, { fontSize: '12px', opacity: '0.9', lineHeight: '1.4', marginTop: '4px' });
+    bodyEl.textContent = body;
+    toast.appendChild(bodyEl);
+  }
+
+  toast.addEventListener('click', () => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => toast.remove(), 300);
+  });
+
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(0)';
+  });
+
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }
+  }, 5000);
 }
 
 // ============ Badge 显示 ============

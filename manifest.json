@@ -7,7 +7,7 @@
     "tabs",
     "storage",
     "alarms",
-    "notifications"
+    "scripting"
   ],
   "background": {
     "service_worker": "background.js"
@@ -27,5 +27,13 @@
   },
   "omnibox": {
     "keyword": "go"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["toast.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["<all_urls>"]
 }

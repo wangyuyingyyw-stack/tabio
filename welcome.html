@@ -70,42 +70,25 @@
       color: #666;
       line-height: 1.5;
     }
-    .tip-box {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 14px;
-      padding: 24px;
-      margin-bottom: 30px;
-      color: white;
-    }
-    .tip-box h3 {
-      font-size: 15px;
-      margin-bottom: 10px;
-      opacity: 0.9;
-    }
-    .tip-box .shortcut {
+    .shortcut-inline {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-top: 12px;
+      gap: 8px;
+      margin-top: 10px;
     }
-    .tip-box .key {
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 14px;
+    .key-inline {
+      background: #f0edff;
+      border: 1px solid #d4cdf7;
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 13px;
       font-weight: 600;
       font-family: monospace;
+      color: #5b4dc7;
     }
-    .tip-box .arrow {
-      font-size: 18px;
-      opacity: 0.7;
-    }
-    .tip-box .desc {
-      font-size: 13px;
-      opacity: 0.85;
-      margin-top: 10px;
-      line-height: 1.5;
+    .arrow-inline {
+      font-size: 14px;
+      color: #bbb;
     }
     .footer {
       text-align: center;
@@ -128,39 +111,34 @@
         <div class="feature-icon">🔄</div>
         <div class="feature-content">
           <h3>自动去重</h3>
-          <p>当你打开一个已经存在的页面时，Tabio 会自动关闭旧的重复标签，保留你新打开的页面。不用再手动找和关了。</p>
+          <p>重复打开的页面会自动合并，保留最新的那个。</p>
         </div>
       </div>
       <div class="feature">
         <div class="feature-icon">⏰</div>
         <div class="feature-content">
-          <h3>自动清理不活跃标签</h3>
-          <p>超过 30 分钟没有访问的标签会被自动关闭（可在设置中调整）。固定标签和播放音频的标签不受影响，关闭的标签可在历史中恢复。</p>
+          <h3>自动清理</h3>
+          <p>长时间没看的标签自动关闭，随时可在历史中恢复。</p>
         </div>
       </div>
       <div class="feature">
         <div class="feature-icon">🔍</div>
         <div class="feature-content">
-          <h3>地址栏快速搜索</h3>
-          <p>打开了很多标签找不到？不用一个个翻，直接用地址栏搜索所有窗口的标签，一秒跳转。</p>
+          <h3>快捷搜索已打开网页</h3>
+          <p>找不到某个网页？在地址栏输入 <strong>go</strong>，按一下<strong>空格键</strong>，然后输入关键词，即可跨窗口搜索已打开的网页并跳转。</p>
+          <div class="shortcut-inline">
+            <span class="key-inline">go</span>
+            <span class="arrow-inline">→</span>
+            <span class="key-inline">空格</span>
+            <span class="arrow-inline">→</span>
+            <span class="key-inline">输入关键词搜索</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="tip-box">
-      <h3>💡 试试地址栏搜索（最实用的功能）</h3>
-      <div class="shortcut">
-        <span class="key">go</span>
-        <span class="arrow">→</span>
-        <span class="key">Tab</span>
-        <span class="arrow">→</span>
-        <span class="key">输入关键词</span>
-      </div>
-      <p class="desc">在地址栏输入 go，按 Tab 键激活搜索模式，然后输入你记得的页面标题或网址的任意部分，从下拉结果中选择即可直接跳转，跨窗口也能找到。</p>
-    </div>
-
     <div class="footer">
-      <p>点击工具栏上的 Tabio 图标可以查看概览、搜索标签、恢复历史和调整设置</p>
+      <p>点击工具栏 Tabio 图标查看概览和设置</p>
     </div>
   </div>
 </body>
